@@ -3,9 +3,9 @@ import java.util.ArrayList;
 
 import static java.lang.System.exit;
 
-public class Main {
+class Main {
 
-    public static void printUsage() {
+    private static void printUsage() {
         System.err.println("Usage:");
         System.err.println(System.getProperty("sun.java.command") + " min_c_re min_c_im max_c_re max_c_im max_n x y divisions list-of-servers");
         System.err.println();
@@ -14,13 +14,13 @@ public class Main {
         exit(0);
     }
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) {
         if (args.length < 9) {
             printUsage();
         }
         double min_c_re, min_c_im, max_c_re, max_c_im;
         int max_n, x_size, y_size, divisions;
-        ArrayList<String> servers = new ArrayList<String>();
+        ArrayList<String> servers = new ArrayList<>();
         try {
             min_c_re = Double.parseDouble(args[0]);
             min_c_im = Double.parseDouble(args[1]);
@@ -30,10 +30,9 @@ public class Main {
             x_size = Integer.parseInt(args[5]);
             y_size = Integer.parseInt(args[6]);
             divisions = Integer.parseInt(args[7]);
-            int idx = 0;
             for (int i = 8; i < args.length; i++) {
                 String server = (args[i].startsWith("http://") ? "" : "http://") + args[i];
-                if (server.matches("http:\\/\\/.*:\\d+")) { // Check for valid server name
+                if (server.matches("http://.*:\\d+")) { // Check for valid server name
                     System.err.println("Added: "+server);
                     servers.add(server);
                 } else {

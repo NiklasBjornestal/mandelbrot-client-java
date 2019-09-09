@@ -9,17 +9,17 @@ import java.util.*;
 import java.util.concurrent.*;
 
 
-public class MandelbrotBuilder {
+class MandelbrotBuilder {
 
-    final double minCRe, minCIm, maxCRe, maxCIm;
-    final int maxIterations, xSize, ySize;
-    final double rePixSize, imPixSize;
-    int divisions;
-    int segmentXSize, segmentYSize;
-    byte[][] image;
-    private static String baseUrl = "mandelbrot";
+    private final double minCRe, minCIm, maxCRe, maxCIm;
+    private final int maxIterations, xSize, ySize;
+    private final double rePixSize, imPixSize;
+    private int divisions;
+    private int segmentXSize, segmentYSize;
+    private byte[][] image;
+    private static final String baseUrl = "mandelbrot";
 
-    public MandelbrotBuilder(double minCRe, double minCIm, double maxCRe, double maxCIm, int maxIterations, int xSize, int ySize) {
+    MandelbrotBuilder(double minCRe, double minCIm, double maxCRe, double maxCIm, int maxIterations, int xSize, int ySize) {
         this.minCRe = minCRe;
         this.minCIm = minCIm;
         this.maxCRe = maxCRe;
@@ -31,11 +31,11 @@ public class MandelbrotBuilder {
         this.imPixSize = (maxCIm - minCIm) / ySize;
     }
 
-    public String getUrl(String server, String baseUrl, double minCRe, double minCIm, double maxCRe, double maxCIm, int xSize, int ySize, int maxIterations) {
+    private String getUrl(String server, String baseUrl, double minCRe, double minCIm, double maxCRe, double maxCIm, int xSize, int ySize, int maxIterations) {
         return server+"/"+baseUrl+"/"+minCRe+"/"+minCIm+"/"+maxCRe+"/"+maxCIm+"/"+xSize+"/"+ySize+"/"+maxIterations;
     }
 
-    public Callable<JobResult> getImageSegment(int col, int row, int sizeX, int sizeY, int divisions) {
+    private Callable<JobResult> getImageSegment(int col, int row, int sizeX, int sizeY, int divisions) {
 
         JobResult result = new JobResult();
         result.setCol(col);
@@ -48,7 +48,7 @@ public class MandelbrotBuilder {
         maxCRe = minCRe + (sizeX - 1) * rePixSize;
         maxCIm = minCIm + (sizeY - 1) * imPixSize;
 
-        Callable callable = () -> {
+        return () -> {
             try {
                 String server = ((ClientThreadFactory.ClientThread)Thread.currentThread()).getServer();
                 URL url = new URL(getUrl(server, baseUrl, minCRe, minCIm, maxCRe, maxCIm, sizeX, sizeY, maxIterations));
@@ -64,10 +64,9 @@ public class MandelbrotBuilder {
             }
             return result;
         };
-        return callable;
     }
 
-    public void fetch(List<String> servers, int divisions) {
+    void fetch(List<String> servers, int divisions) {
         boolean done = false;
         int tries = 0;
         ArrayList<Callable<JobResult>> jobs = new ArrayList<>();
@@ -98,13 +97,13 @@ public class MandelbrotBuilder {
             }
             executor.shutdown();
         } catch (InterruptedException ex) {
-            System.err.println("Interupted: "+ex);
+            System.err.println("Interrupted: "+ex);
         } catch (ExecutionException ex) {
             System.err.println("Execution exception: "+ex);
         }
     }
 
-    public void write(OutputStream out) {
+    void write(OutputStream out) {
         try {
 //            out.write("P5\n".getBytes());
 //            out.write((xSize + " " + ySize + "\n").getBytes());
@@ -127,27 +126,27 @@ public class MandelbrotBuilder {
         private int col;
         private Boolean success;
 
-        public int getRow() {
+        int getRow() {
             return row;
         }
 
-        public void setRow(int row) {
+        void setRow(int row) {
             this.row = row;
         }
 
-        public int getCol() {
+        int getCol() {
             return col;
         }
 
-        public void setCol(int col) {
+        void setCol(int col) {
             this.col = col;
         }
 
-        public Boolean getSuccess() {
+        Boolean getSuccess() {
             return success;
         }
 
-        public void setSuccess(Boolean success) {
+        void setSuccess(Boolean success) {
             this.success = success;
         }
     }

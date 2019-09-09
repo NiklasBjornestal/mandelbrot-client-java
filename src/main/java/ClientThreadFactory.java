@@ -3,10 +3,10 @@ import java.util.concurrent.ThreadFactory;
 
 public class ClientThreadFactory implements ThreadFactory {
 
-    private List<String> servers;
+    private final List<String> servers;
     private int threadNumber;
 
-    public ClientThreadFactory(List<String> servers) {
+    ClientThreadFactory(List<String> servers) {
         this.servers = servers;
     }
 
@@ -20,15 +20,15 @@ public class ClientThreadFactory implements ThreadFactory {
         return thread;
     }
 
-    public class ClientThread extends Thread {
-        private String server;
+    class ClientThread extends Thread {
+        private final String server;
 
-        public ClientThread(Runnable runnable, String server) {
+        ClientThread(Runnable runnable, String server) {
             super(runnable);
             this.server = server;
         }
 
-        public String getServer() {
+        String getServer() {
             return server;
         }
     }
