@@ -18,9 +18,10 @@ class Main {
         if (args.length < 9) {
             printUsage();
         }
-        double min_c_re, min_c_im, max_c_re, max_c_im;
-        int max_n, x_size, y_size, divisions;
+        double min_c_re = 0.0, min_c_im = 0.0, max_c_re = 0.0, max_c_im = 0.0;
+        int max_n = 0, x_size = 0, y_size = 0, divisions = 0;
         ArrayList<String> servers = new ArrayList<>();
+        /* Parse parameters, print usage and exit on errors */
         try {
             min_c_re = Double.parseDouble(args[0]);
             min_c_im = Double.parseDouble(args[1]);
@@ -40,15 +41,14 @@ class Main {
                     printUsage();
                 }
             }
-
-            MandelbrotBuilder mandel = new MandelbrotBuilder(min_c_re, min_c_im, max_c_re, max_c_im, max_n, x_size, y_size);
-            mandel.fetch(servers, divisions);
-            mandel.write(System.out);
-            System.out.flush();
         } catch (NumberFormatException ex) {
             System.err.println("Bad argument");
             printUsage();
         }
+        MandelbrotBuilder mandel = new MandelbrotBuilder(min_c_re, min_c_im, max_c_re, max_c_im, max_n, x_size, y_size);
+        mandel.fetch(servers, divisions);
+        mandel.write(System.out);
+        System.out.flush();
 
     }
 }

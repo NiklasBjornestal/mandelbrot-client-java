@@ -9,16 +9,28 @@ import java.util.*;
 import java.util.concurrent.*;
 
 
+/**
+ *
+ */
 class MandelbrotBuilder {
 
     private final double minCRe, minCIm, maxCRe, maxCIm;
     private final int maxIterations, xSize, ySize;
-    private final double rePixSize, imPixSize;
+    private final double rePixSize, imPixSize; // Size of each pixel in re/im scale
     private int divisions;
     private int segmentXSize, segmentYSize;
     private byte[][] image;
     private static final String baseUrl = "mandelbrot";
 
+    /**
+     * @param minCRe min real value
+     * @param minCIm min imaginary value
+     * @param maxCRe max real value
+     * @param maxCIm max imaginary value
+     * @param maxIterations Max number of iterations to calculate
+     * @param xSize x size in pixels
+     * @param ySize y size in pixels
+     */
     MandelbrotBuilder(double minCRe, double minCIm, double maxCRe, double maxCIm, int maxIterations, int xSize, int ySize) {
         this.minCRe = minCRe;
         this.minCIm = minCIm;
@@ -31,10 +43,31 @@ class MandelbrotBuilder {
         this.imPixSize = (maxCIm - minCIm) / ySize;
     }
 
+    /**
+     * Build a url from parameters
+     * @param server name of server
+     * @param baseUrl base of address
+     * @param minCRe min real value
+     * @param minCIm min imaginary value
+     * @param maxCRe max real value
+     * @param maxCIm max imaginary value
+     * @param maxIterations Max number of iterations to calculate
+     * @param xSize x size in pixels
+     * @param ySize y size in pixels
+     * @return url
+     */
     private String getUrl(String server, String baseUrl, double minCRe, double minCIm, double maxCRe, double maxCIm, int xSize, int ySize, int maxIterations) {
         return server+"/"+baseUrl+"/"+minCRe+"/"+minCIm+"/"+maxCRe+"/"+maxCIm+"/"+xSize+"/"+ySize+"/"+maxIterations;
     }
 
+    /**
+     * @param col column of image segment to get (0 - divisions-1)
+     * @param row row of image segment to get (0 - divisions-1)
+     * @param sizeX x size of image segment to get
+     * @param sizeY y size of image segment to get
+     * @param divisions number of divisions
+     * @return Callable with JobResult
+     */
     private Callable<JobResult> getImageSegment(int col, int row, int sizeX, int sizeY, int divisions) {
 
         JobResult result = new JobResult();
@@ -66,6 +99,10 @@ class MandelbrotBuilder {
         };
     }
 
+    /**
+     * @param servers list of servers to use
+     * @param divisions number of parts image should be divided into (divisions x divisions)
+     */
     void fetch(List<String> servers, int divisions) {
         boolean done = false;
         int tries = 0;
@@ -103,6 +140,9 @@ class MandelbrotBuilder {
         }
     }
 
+    /**
+     * @param out stream to write image to
+     */
     void write(OutputStream out) {
         try {
 //            out.write("P5\n".getBytes());
@@ -121,6 +161,10 @@ class MandelbrotBuilder {
         }
     }
 
+    /**
+     * Keeps track of result of job
+     * row, col is used to keep track of which image segment to retry to get if not successful
+     */
     private class JobResult {
         private int row;
         private int col;
