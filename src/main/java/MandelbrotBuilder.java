@@ -1,7 +1,3 @@
-import com.sun.glass.ui.Size;
-import com.sun.javafx.geom.Rectangle;
-import com.sun.prism.image.Coords;
-import javafx.concurrent.Task;
 import org.apache.commons.io.IOUtils;
 
 import java.io.IOException;
@@ -12,7 +8,6 @@ import java.net.URL;
 import java.util.*;
 import java.util.concurrent.*;
 
-import static java.lang.Thread.sleep;
 
 public class MandelbrotBuilder {
 
@@ -34,7 +29,6 @@ public class MandelbrotBuilder {
         this.ySize = ySize;
         this.rePixSize = (maxCRe - minCRe) / xSize;
         this.imPixSize = (maxCIm - minCIm) / ySize;
-        //image = new byte[xSize * ySize];
     }
 
     public String getUrl(String server, String baseUrl, double minCRe, double minCIm, double maxCRe, double maxCIm, int xSize, int ySize, int maxIterations) {
@@ -56,12 +50,11 @@ public class MandelbrotBuilder {
 
         Callable callable = () -> {
             try {
-                String server = ((ServerThreadFactory.ServerThread)Thread.currentThread()).getServer();
+                String server = ((ClientThreadFactory.ClientThread)Thread.currentThread()).getServer();
                 URL url = new URL(getUrl(server, baseUrl, minCRe, minCIm, maxCRe, maxCIm, sizeX, sizeY, maxIterations));
-                System.out.println("Reading: "+col+":"+row+" : " + url.toString());
+                System.err.println("Reading: "+col+":"+row+" : " + url.toString());
                 InputStream is = url.openStream();
                 image[col+row*divisions] = IOUtils.toByteArray(is);
-                //url.openStream().read(image[x + y * divisions], 0,sizeX*sizeY);
             } catch (MalformedURLException ex){
                 System.err.println("Bad url: "+ex);
                 result.setSuccess(false);
@@ -74,35 +67,12 @@ public class MandelbrotBuilder {
         return callable;
     }
 
-/*    public Runnable getImageSegment(int x, int y, int sizeX, int sizeY, int divisions) {
-        String server = "http://localhost:8080"; //((ServerThreadFactory.ServerThread)Thread.currentThread()).getServer();
-        double minCRe, minCIm, maxCRe, maxCIm;
-
-        minCRe = this.minCRe + x * sizeX * rePixSize;
-        minCIm = this.minCIm + y * sizeY * imPixSize;
-        maxCRe = minCRe + (sizeX - 1) * rePixSize;
-        maxCIm = minCIm + (sizeY - 1) * rePixSize;
-
-        Runnable runnable = () -> {
-            try {
-                URL url = new URL(getUrl(server, baseUrl, minCRe, minCIm, maxCRe, maxCIm, maxIterations, sizeX, sizeY));
-                System.out.println("Reading: "+x+":"+y+" : " + url.toString());
-                url.openStream().read(image[x + y * divisions]);
-            } catch (MalformedURLException ex){
-                System.err.println("Bad url: "+ex);
-            } catch (IOException ex) {
-                System.err.println("IOException: "+ex);
-            }
-        };
-        return runnable;
-    }*/
-
     public void fetch(List<String> servers, int divisions) {
         boolean done = false;
         int tries = 0;
         ArrayList<Callable<JobResult>> jobs = new ArrayList<>();
         this.divisions = divisions;
-        ServerThreadFactory threadFactory = new ServerThreadFactory(servers);
+        ClientThreadFactory threadFactory = new ClientThreadFactory(servers);
         ThreadPoolExecutor executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(servers.size(), threadFactory);
         segmentXSize = xSize / divisions;
         segmentYSize = ySize / divisions;
@@ -110,7 +80,6 @@ public class MandelbrotBuilder {
         for (int row = 0; row<divisions; row++) {
             for (int col = 0; col<divisions; col++) {
                 jobs.add(getImageSegment(col, row, segmentXSize, segmentYSize, divisions));
-                //executor.submit(getImageSegment(col, row, segmentXSize, segmentYSize, divisions));
             }
         }
         try {
@@ -137,9 +106,9 @@ public class MandelbrotBuilder {
 
     public void write(OutputStream out) {
         try {
-            out.write("P5\n".getBytes());
-            out.write((xSize + " " + ySize + "\n").getBytes());
-            out.write("8\n".getBytes());
+//            out.write("P5\n".getBytes());
+//            out.write((xSize + " " + ySize + "\n").getBytes());
+//            out.write("8\n".getBytes());
             for (int row = 0; row<divisions; row++) {
                 for (int segmentRow = 0; segmentRow < segmentYSize; segmentRow++) {
                     for (int col = 0; col<divisions; col++) {

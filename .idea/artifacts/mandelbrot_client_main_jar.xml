@@ -1,0 +1,12 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="mandelbrot-client.main:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/mandelbrot_client_main_jar</output-path>
+    <root id="archive" name="mandelbrot-client.main.jar">
+      <element id="directory" name="META-INF">
+        <element id="dir-copy" path="$PROJECT_DIR$/src/main/resources/META-INF" />
+      </element>
+      <element id="module-output" name="mandelbrot-client.main" />
+      <element id="extracted-dir" path="$USER_HOME$/.gradle/caches/modules-2/files-2.1/commons-io/commons-io/2.6/815893df5f31da2ece4040fe0a12fd44b577afaf/commons-io-2.6.jar" path-in-jar="/" />
+    </root>
+  </artifact>
+</component>
