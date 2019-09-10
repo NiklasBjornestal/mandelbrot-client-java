@@ -18,14 +18,14 @@ public class ClientThreadFactory implements ThreadFactory {
     }
 
     /**
-     * @param runnable
-     * @return ClientThread with name of server to use
+     * @param runnable a runnable to be executed by new thread instance
+     * @return constructed ClientThread, or null if the request to create a thread is rejected
      */
     @Override
     public ClientThread newThread(Runnable runnable) {
         ClientThread thread;
         synchronized (this) {
-            thread = new ClientThread(runnable, servers.get(threadNumber++));
+            thread = new ClientThread(runnable, servers.get(threadNumber++), servers);
             threadNumber = (threadNumber) % servers.size();
         }
         return thread;
@@ -36,15 +36,27 @@ public class ClientThreadFactory implements ThreadFactory {
      * to fetch data from
      */
     class ClientThread extends Thread {
-        private final String server;
+        private String server;
+        private final List<String> servers;
 
-        ClientThread(Runnable runnable, String server) {
+        ClientThread(Runnable runnable, String server, List<String> servers) {
             super(runnable);
             this.server = server;
+            this.servers = servers;
         }
 
         String getServer() {
             return server;
+        }
+
+        /**
+         * Remove a server from the server list and select a new random server from the list of
+         * remaining servers
+         */
+        public void removeAndSwitchServer() {
+            servers.remove(server);
+            if (servers.size() > 0)
+                server = servers.get((int)(Math.random()*servers.size()));
         }
     }
 }

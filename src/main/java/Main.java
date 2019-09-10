@@ -1,4 +1,3 @@
-import java.io.IOException;
 import java.util.ArrayList;
 
 import static java.lang.System.exit;
@@ -6,11 +5,12 @@ import static java.lang.System.exit;
 class Main {
 
     private static void printUsage() {
+        System.err.println("Outputs mandelbrot image to stdout");
         System.err.println("Usage:");
         System.err.println(System.getProperty("sun.java.command") + " min_c_re min_c_im max_c_re max_c_im max_n x y divisions list-of-servers");
         System.err.println();
         System.err.println("Example:\n");
-        System.err.println(System.getProperty("sun.java.command") + "-1 -1.5 2 1.5 1024 10000 10000 4 localhost:4444 localhost:3333 192.168.33.3:4444");
+        System.err.println(System.getProperty("sun.java.command") + " -2 -1.5 1 1.5 1024 10000 10000 4 localhost:4444 localhost:3333 192.168.33.3:4444");
         exit(0);
     }
 
@@ -45,6 +45,8 @@ class Main {
             System.err.println("Bad argument");
             printUsage();
         }
+
+        /* Fetch the image from servers and write the resulting image to stdout */
         MandelbrotBuilder mandel = new MandelbrotBuilder(min_c_re, min_c_im, max_c_re, max_c_im, max_n, x_size, y_size);
         mandel.fetch(servers, divisions);
         mandel.write(System.out);

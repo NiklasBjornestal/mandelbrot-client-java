@@ -82,17 +82,19 @@ class MandelbrotBuilder {
         maxCIm = minCIm + (sizeY - 1) * imPixSize;
 
         return () -> {
+            String server = ((ClientThreadFactory.ClientThread)Thread.currentThread()).getServer();
             try {
-                String server = ((ClientThreadFactory.ClientThread)Thread.currentThread()).getServer();
                 URL url = new URL(getUrl(server, baseUrl, minCRe, minCIm, maxCRe, maxCIm, sizeX, sizeY, maxIterations));
                 System.err.println("Reading: "+col+":"+row+" : " + url.toString());
-                InputStream is = url.openStream();
+                try (InputStream is = url.openStream()) {
                 image[col+row*divisions] = IOUtils.toByteArray(is);
-            } catch (MalformedURLException ex){
-                System.err.println("Bad url: "+ex);
-                result.setSuccess(false);
-            } catch (IOException ex) {
-                System.err.println("IOException: "+ex);
+                } catch (IOException ex) {
+                    System.err.println("IOException: "+ex);
+                    ((ClientThreadFactory.ClientThread)Thread.currentThread()).removeAndSwitchServer();
+                    result.setSuccess(false);
+                }
+            } catch (MalformedURLException ex) {
+                System.err.println("Bad url: " + ex);
                 result.setSuccess(false);
             }
             return result;
@@ -141,13 +143,15 @@ class MandelbrotBuilder {
     }
 
     /**
+     * Output an pgm image from the received image segments
+     *
      * @param out stream to write image to
      */
     void write(OutputStream out) {
         try {
-//            out.write("P5\n".getBytes());
-//            out.write((xSize + " " + ySize + "\n").getBytes());
-//            out.write("8\n".getBytes());
+            out.write("P5\n".getBytes());
+            out.write((xSize + " " + ySize + "\n").getBytes());
+            out.write("255\n".getBytes());
             for (int row = 0; row<divisions; row++) {
                 for (int segmentRow = 0; segmentRow < segmentYSize; segmentRow++) {
                     for (int col = 0; col<divisions; col++) {
